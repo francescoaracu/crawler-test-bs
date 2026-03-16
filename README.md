@@ -14,7 +14,7 @@ docker compose up --build
 ## Option 2: Run once and stop when complete
 
 ```sh
-docker compose run --rm crawler_bs
+docker compose run --rm crawler-bs
 ```
 ## Access data
 
