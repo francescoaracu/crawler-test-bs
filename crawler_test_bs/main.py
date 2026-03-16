@@ -32,7 +32,7 @@ async def main() -> None:
 
     event_manager = LocalEventManager.from_config(config)
 
-    request_list = RequestList(load_urls_from_csv('./crawler_test/lists/202601.csv'))
+    request_list = RequestList(load_urls_from_csv('./crawler_test_bs/lists/202601.csv'))
 
     request_manager = await request_list.to_tandem()
 
