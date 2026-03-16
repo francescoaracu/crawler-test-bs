@@ -1,0 +1,13 @@
+[project]
+name = "crawler-test-bs"
+version = "0.0.1"
+description = ""
+authors = [
+    {name = "Francesco Aracu",email = "f.aracu@studenti.unica.it"}
+]
+readme = "README.md"
+requires-python = ">=3.10,<4.0"
+dependencies = [
+    "crawlee[beautifulsoup]",
+]
+
