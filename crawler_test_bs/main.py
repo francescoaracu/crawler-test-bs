@@ -1,6 +1,9 @@
+import aiofiles
+import aiocsv
 import asyncio
 import csv
 from datetime import timedelta
+from crawlee import ConcurrencySettings
 from crawlee.configuration import Configuration
 from crawlee.crawlers import BeautifulSoupCrawler
 from crawlee.events import LocalEventManager
@@ -8,26 +11,27 @@ from crawlee.http_clients import ImpitHttpClient
 from crawlee.request_loaders import RequestList
 from .routes import router
 
-async def load_urls_from_csv(file_path: str):  
-    """Read URLs from CSV file."""
-    def read_csv():
-        with open(file_path, 'r') as file:  
-            reader = csv.reader(file)  
-            next(reader, None)  # Skip header row
-            for row in reader:  
-                if row:
-                    yield row[0]  # URL is in the first column
-
-    # Convert the synchronous generator into an async-friendly stream
-    for url in read_csv():
-        yield url
-        # Yield control back to the event loop to keep the crawler responsive
-        await asyncio.sleep(0)
+async def load_urls_from_csv(file_path: str):
+    """Read URLs from CSV file asynchronously."""
+    async with aiofiles.open(file_path, 'r') as file:
+        reader = aiocsv.AsyncReader(file)
+        # Skip header row
+        await reader.__anext__()
+        async for row in reader:
+            if row:
+                yield row[0]  # URL is in the first column
+                # Yield control back to the event loop
+                await asyncio.sleep(0)
 
 async def main() -> None:
     """The crawler entry point."""
     config = Configuration(
         available_memory_ratio=0.7,
+    )
+
+    concurrency = ConcurrencySettings(
+        max_concurrency=50,
+        desired_concurrency=25,
     )
 
     event_manager = LocalEventManager.from_config(config)
@@ -38,6 +42,7 @@ async def main() -> None:
 
     crawler = BeautifulSoupCrawler(
         configuration=config,
+        concurrency_settings=concurrency,
         event_manager=event_manager,
         request_handler=router,
         request_manager=request_manager,
