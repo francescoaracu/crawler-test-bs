@@ -37,8 +37,6 @@ async def main() -> None:
 
     request_list = RequestList(
         requests=load_urls_from_csv('./crawler_test_bs/lists/202601.csv'),
-        persist_state_key='state',
-        persist_requests_key='requests',
     )
 
     request_manager = await request_list.to_tandem()
