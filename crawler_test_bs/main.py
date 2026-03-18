@@ -1,7 +1,6 @@
 import aiofiles
 import aiocsv
 import asyncio
-import csv
 from datetime import timedelta
 from crawlee import ConcurrencySettings
 from crawlee.configuration import Configuration
@@ -30,13 +29,17 @@ async def main() -> None:
     )
 
     concurrency = ConcurrencySettings(
-        max_concurrency=50,
-        desired_concurrency=25,
+        max_concurrency=30,
+        desired_concurrency=15,
     )
 
     event_manager = LocalEventManager.from_config(config)
 
-    request_list = RequestList(load_urls_from_csv('./crawler_test_bs/lists/202601.csv'))
+    request_list = RequestList(
+        requests=load_urls_from_csv('./crawler_test_bs/lists/202601.csv'),
+        persist_state_key='state',
+        persist_requests_key='requests',
+    )
 
     request_manager = await request_list.to_tandem()
 
@@ -46,8 +49,8 @@ async def main() -> None:
         event_manager=event_manager,
         request_handler=router,
         request_manager=request_manager,
-        navigation_timeout=timedelta(seconds=30),
-        request_handler_timeout=timedelta(seconds=30),
+        navigation_timeout=timedelta(seconds=20),
+        request_handler_timeout=timedelta(seconds=20),
         max_request_retries=1,
         max_requests_per_crawl=1000,
         http_client=ImpitHttpClient(),
