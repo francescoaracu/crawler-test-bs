@@ -20,12 +20,12 @@ async def load_urls_from_csv(file_path: str):
         async for row in reader:
             if row:
                 try:
-                    request = Request.from_url(row[0])
+                    request = Request.from_url(url=row[0], no_retry=True)
                 except ValidationError:
                     print(f'Invalid URL encountered in CSV: {row[0]}')
                     continue
 
-                yield request
+                yield row[0]
                 # Yield control back to the event loop
                 await asyncio.sleep(0)
 
@@ -37,9 +37,8 @@ async def main() -> None:
     )
 
     concurrency = ConcurrencySettings(
-        max_concurrency=30,
-        desired_concurrency=15,
-        max_tasks_per_minute=50,
+        max_concurrency=50,
+        desired_concurrency=25,
     )
 
     event_manager = LocalEventManager.from_config(config)
@@ -60,7 +59,6 @@ async def main() -> None:
         request_manager=request_manager,
         navigation_timeout=timedelta(seconds=20),
         request_handler_timeout=timedelta(seconds=20),
-        max_request_retries=1,
         max_requests_per_crawl=1000,
         http_client=ImpitHttpClient(),
     )
