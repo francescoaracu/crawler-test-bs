@@ -2,7 +2,8 @@ import aiofiles
 import aiocsv
 import asyncio
 from datetime import timedelta
-from crawlee import ConcurrencySettings
+from pydantic import ValidationError
+from crawlee import ConcurrencySettings, Request
 from crawlee.configuration import Configuration
 from crawlee.crawlers import BeautifulSoupCrawler
 from crawlee.events import LocalEventManager
@@ -18,7 +19,13 @@ async def load_urls_from_csv(file_path: str):
         await reader.__anext__()
         async for row in reader:
             if row:
-                yield row[0]  # URL is in the first column
+                try:
+                    request = Request.from_url(row[0])
+                except ValidationError:
+                    print(f'Invalid URL encountered in CSV: {row[0]}')
+                    continue
+
+                yield request
                 # Yield control back to the event loop
                 await asyncio.sleep(0)
 
