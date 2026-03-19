@@ -26,17 +26,21 @@ async def main() -> None:
     """The crawler entry point."""
     config = Configuration(
         available_memory_ratio=0.7,
+        purge_on_start=False,
     )
 
     concurrency = ConcurrencySettings(
         max_concurrency=30,
         desired_concurrency=15,
+        max_tasks_per_minute=50,
     )
 
     event_manager = LocalEventManager.from_config(config)
 
     request_list = RequestList(
         requests=load_urls_from_csv('./crawler_test_bs/lists/202601.csv'),
+        persist_requests_key='persist-requests',
+        persist_state_key='persist-state',
     )
 
     request_manager = await request_list.to_tandem()
