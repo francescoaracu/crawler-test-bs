@@ -3,7 +3,7 @@ import aiocsv
 import asyncio
 from datetime import timedelta
 from pydantic import ValidationError
-from crawlee import ConcurrencySettings, Request
+from crawlee import ConcurrencySettings, Request, service_locator
 from crawlee.configuration import Configuration
 from crawlee.crawlers import BeautifulSoupCrawler
 from crawlee.events import LocalEventManager
@@ -31,10 +31,9 @@ async def load_urls_from_csv(file_path: str):
 
 async def main() -> None:
     """The crawler entry point."""
-    config = Configuration(
-        available_memory_ratio=0.7,
-        purge_on_start=False,
-    )
+    config = service_locator.get_configuration()
+    config.available_memory_ratio = 0.7
+    config.purge_on_start = False
 
     concurrency = ConcurrencySettings(
         max_concurrency=50,
